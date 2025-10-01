@@ -31,7 +31,7 @@ const fetchJSON = (url: string) => {
   });
 }
 
-function buildQuery(params: Record<string, string | number | undefined>) {
+const buildQuery = (params: Record<string, string | number | undefined>) => {
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     if (v === undefined || v === null || v === "") continue;
