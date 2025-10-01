@@ -263,7 +263,7 @@ export default function Home() {
                 value={pageSize}
                 onChange={(e) => setPageSize(Number(e.target.value))}
               >
-                <option value={6}>9</option>
+                <option value={9}>9</option>
                 <option value={12}>12</option>
                 <option value={24}>24</option>
                 <option value={48}>48</option>
