@@ -1,3 +1,6 @@
-from django.shortcuts import render
+from django.http import JsonResponse
+from .models import Category
 
-# Create your views here.
+def categories_api(request):
+    data = [{"id": c.id, "name": c.name} for c in Category.objects.order_by("name")]
+    return JsonResponse({"results": data})
