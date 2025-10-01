@@ -3,25 +3,37 @@
 import { useCategories, useTags, useProducts } from "@/hooks";
 import { useEffect, useMemo, useState } from "react";
 
+const useDebounced = (value: string, delay = 300) => {
+  const [v, setV] = useState(value);
+  useEffect(() => {
+    const timeoutId = setTimeout(() => setV(value), delay);
+    return () => clearTimeout(timeoutId);
+  }, [value, delay]);
+  return v;
+}
+
 export default function Home() {
+  const [q, setQ] = useState("");
+  const dq = useDebounced(q, 300);
   const [categoryId, setCategoryId] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
 
-  // category and tags data
+  // lookup data
   const { data: catData, isLoading: catsLoading, error: catsError } = useCategories(true);
   const { data: tagData, isLoading: tagsLoading, error: tagsError } = useTags(true);
 
-  // build products query params TODO add search params
+  // build products query params
   const productParams = useMemo(
     () => ({
+      q: dq,
       category: categoryId ? Number(categoryId) : undefined,
       tags: selectedTags.length ? selectedTags.map((id) => Number(id)) : undefined,
       page,
       page_size: pageSize,
     }),
-    [categoryId, selectedTags, page, pageSize]
+    [dq, categoryId, selectedTags, page, pageSize]
   );
 
   const {
@@ -30,15 +42,15 @@ export default function Home() {
     error: productsError,
   } = useProducts(productParams, true);
 
-  // pagination data, reset if missing or invalid data
+  // pagination data
   const total = prodData?.pagination.count ?? 0;
   const currentPage = prodData?.pagination.page ?? 1;
   const totalPages = prodData?.pagination.num_pages ?? 1;
 
-  // reset page when filters or page size change
+  // reset page when filters or debounced query changes 
   useEffect(() => {
     setPage(1);
-  }, [categoryId, selectedTags, pageSize]);
+  }, [dq, categoryId, selectedTags, pageSize]);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -56,13 +68,14 @@ export default function Home() {
         {/* Filters */}
         <section className="bg-white border rounded-2xl shadow-sm p-4 sm:p-5">
           <div className="grid gap-3 md:grid-cols-3">
-            {/* Search (coming later) */}
+            {/* Search */}
             <label className="block">
               <span className="block text-xs font-medium text-slate-600 mb-1">Search</span>
               <input
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
-                placeholder="(coming soon)"
-                readOnly
+                placeholder="Search description…"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
               />
             </label>
 
@@ -120,6 +133,7 @@ export default function Home() {
             <button
               className="text-sm rounded-lg border px-3 py-1.5 hover:bg-slate-100"
               onClick={() => {
+                setQ("");
                 setCategoryId("");
                 setSelectedTags([]);
                 setPageSize(12);
@@ -174,7 +188,6 @@ export default function Home() {
 
         {/* Results grid */}
         <section>
-          {/* loading state need to test still */}
           {productsLoading ? (
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
