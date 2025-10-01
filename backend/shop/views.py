@@ -46,6 +46,16 @@ def products_api(request):
         except (TypeError, ValueError):
             pass
 
+    # tags filter
+    tags_param = request.GET.get("tags")
+    if tags_param:
+        try:
+            tag_ids = [int(p.strip()) for p in tags_param.split(",") if p.strip()]
+            if tag_ids:
+                qs = qs.filter(tags__in=tag_ids).distinct()
+        except ValueError:
+            pass
+
     # paginate data after filters
     paginator = Paginator(qs, page_size)
     page_obj = paginator.get_page(page)
