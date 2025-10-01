@@ -65,21 +65,24 @@ export type ProductParams = {
 };
 
 export function useProducts(params: ProductParams, enabled = false) {
-  const query = buildQuery({
-    q: params.q,
-    category: params.category,
-    tags: params.tags?.length ? params.tags.join(",") : undefined,
-    page: params.page ?? 1,
-    page_size: params.page_size ?? 10,
-  });
-
-  return useQuery({
-    queryKey: ["products", params],
-    queryFn: () =>
-      fetchJSON(`${API_BASE}/products?${query}`) as Promise<ProductsResponse>,
-    enabled,
-  });
-}
+    const query = buildQuery({
+      q: params.q,
+      category: params.category,
+      tags: params.tags?.length ? params.tags.join(",") : undefined,
+      page: params.page ?? 1,
+      page_size: params.page_size ?? 10,
+    });
+  
+    return useQuery({
+      queryKey: ["products", params],
+      queryFn: () =>
+        fetchJSON(`${API_BASE}/products?${query}`) as Promise<ProductsResponse>,
+      enabled,
+      placeholderData: (prev) => prev,
+      refetchOnWindowFocus: false,
+      staleTime: 3000,
+    });
+  }
 
 type ProductFilters = {
   q?: string;

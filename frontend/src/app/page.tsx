@@ -18,7 +18,7 @@ export default function Home() {
   const [categoryId, setCategoryId] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(12);
+  const [pageSize, setPageSize] = useState(9);
   const [isTagsOpen, setIsTagsOpen] = useState(false);
   
   const toggleTag = (id: string) => {
