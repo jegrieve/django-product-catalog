@@ -38,6 +38,14 @@ def products_api(request):
             q = q[:200]
         qs = qs.filter(description__icontains=q)
 
+    # category filter
+    category = request.GET.get("category")
+    if category:
+        try:
+            qs = qs.filter(category_id=int(category))
+        except (TypeError, ValueError):
+            pass
+
     # paginate data after filters
     paginator = Paginator(qs, page_size)
     page_obj = paginator.get_page(page)
