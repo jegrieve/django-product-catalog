@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from .models import Category, Tag, Product
 
@@ -10,15 +11,24 @@ def tags_api(request):
     return JsonResponse({"results": data})
 
 def products_api(request):
+    #params for pagination
+    page = int(request.GET.get("page", 1))
+    page_size = int(request.GET.get("page_size", 10))
+
     qs = (
         Product.objects
         .select_related("category")
         .prefetch_related("tags")
         .order_by("id")
     )
-    #todo pagination and search filtering
+
+    #pagination
+    paginator = Paginator(qs, page_size)
+    page_obj = paginator.get_page(page)
+
+    #todo search filtering
     results = []
-    for p in qs:
+    for p in page_obj.object_list:
         results.append({
             "id": p.id,
             "name": p.name,
@@ -30,4 +40,11 @@ def products_api(request):
             "tags": [{"id": t.id, "name": t.name} for t in p.tags.all()],
         })
 
-    return JsonResponse({"results": results})
+    #todo clean up, use a pagination field instead?
+    return JsonResponse({
+        "results": results,
+        "count": paginator.count,
+        "page": page_obj.number,
+        "num_pages": paginator.num_pages,
+        "page_size": page_size,
+    })
