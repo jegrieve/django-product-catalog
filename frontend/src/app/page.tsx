@@ -1,13 +1,14 @@
 "use client";
 
-import { useCategories } from "@/hooks";
+import { useCategories, useTags } from "@/hooks";
 import { useState } from "react";
 
 export default function Home() {
   const [categoryId, setCategoryId] = useState<string>("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  // fetch categories via our hook
-  const { data, isLoading, error } = useCategories(true); // enabled=true
+  const { data: catData, isLoading: catsLoading, error: catsError } = useCategories(true);
+  const { data: tagData, isLoading: tagsLoading, error: tagsError } = useTags(true);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -33,53 +34,57 @@ export default function Home() {
               />
             </label>
 
-            {/* Category (now driven by hook) */}
+            {/* Category (driven by hook) */}
             <label className="block">
               <span className="block text-xs font-medium text-slate-600 mb-1">Category</span>
               <select
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                disabled={isLoading || !!error}
+                disabled={catsLoading || !!catsError}
               >
                 <option value="">All categories</option>
-                {data?.results?.map((c) => (
+                {catData?.results?.map((c) => (
                   <option key={c.id} value={String(c.id)}>
                     {c.name}
                   </option>
                 ))}
               </select>
-              {isLoading && (
+              {catsLoading && (
                 <div className="mt-1 text-xs text-slate-500">Loading categories…</div>
               )}
-              {error && (
+              {catsError && (
                 <div className="mt-1 text-xs text-red-600">Failed to load categories.</div>
               )}
             </label>
 
-            {/* Tags (placeholder for now) */}
-            <div className="block">
+            {/* Tags (now driven by hook; simple multi-select) */}
+            <label className="block">
               <span className="block text-xs font-medium text-slate-600 mb-1">Tags</span>
-              <button
-                type="button"
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-left text-sm flex items-center justify-between"
-                disabled
+              <select
+                multiple
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm h-[120px]"
+                value={selectedTags}
+                onChange={(e) => {
+                  const values = Array.from(e.target.selectedOptions).map((o) => o.value);
+                  setSelectedTags(values);
+                }}
+                disabled={tagsLoading || !!tagsError}
               >
-                <span className="truncate">All tags</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-slate-500"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.19l3.71-2.96a.75.75 0 11.94 1.17l-4.18 3.33a.75.75 0 01-.94 0L5.21 8.4a.75.75 0 01.02-1.19z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-            </div>
+                {tagData?.results?.map((t) => (
+                  <option key={t.id} value={String(t.id)}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+              <div className="mt-1 text-xs text-slate-500">
+                {tagsLoading && "Loading tags…"}
+                {tagsError && <span className="text-red-600">Failed to load tags.</span>}
+                {!tagsLoading && !tagsError && selectedTags.length > 0 && (
+                  <>Selected: {selectedTags.length}</>
+                )}
+              </div>
+            </label>
           </div>
 
           {/* Footer controls (still placeholder) */}
