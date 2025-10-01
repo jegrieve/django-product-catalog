@@ -20,6 +20,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
   const [isTagsOpen, setIsTagsOpen] = useState(false);
+  const [isCatOpen, setIsCatOpen] = useState(false);
   
   const toggleTag = (id: string) => {
     setSelectedTags((prev) =>
@@ -59,6 +60,11 @@ export default function Home() {
     setPage(1);
   }, [dq, categoryId, selectedTags, pageSize]);
 
+  const selectedCategoryName =
+    categoryId
+      ? catData?.results?.find((c) => String(c.id) === categoryId)?.name ?? "Selected"
+      : "All categories";
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top bar */}
@@ -86,25 +92,63 @@ export default function Home() {
               />
             </label>
 
-            {/* Category */}
-            <label className="block">
+            {/* Category (single-select dropdown styled like Tags) */}
+            <div className="block">
               <span className="block text-xs font-medium text-gray-900 mb-1">Category</span>
-              <select
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm text-black"
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                disabled={catsLoading || !!catsError}
-              >
-                <option value="">All categories</option>
-                {catData?.results?.map((c) => (
-                  <option key={c.id} value={String(c.id)}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              {catsLoading && <div className="mt-1 text-xs text-gray-900">Loading categories…</div>}
-              {catsError && <div className="mt-1 text-xs text-red-600">Failed to load categories.</div>}
-            </label>
+
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => !catsLoading && !catsError && setIsCatOpen((v) => !v)}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-left text-sm text-black flex items-center justify-between disabled:bg-gray-50 disabled:text-gray-400"
+                  disabled={catsLoading || !!catsError}
+                >
+                  <span className="truncate">{selectedCategoryName}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`h-4 w-4 text-gray-900 transition-transform ${isCatOpen ? "rotate-180" : ""}`}
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.19l3.71-2.96a.75.75 0 11.94 1.17l-4.18 3.33a.75.75 0 01-.94 0L5.21 8.4a.75.75 0 01.02-1.19z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                {isCatOpen && (
+                  <div className="absolute z-20 mt-2 w-full rounded-xl border bg-white shadow p-2 max-h-60 overflow-auto">
+                    <button
+                      className={`w-full text-left px-3 py-2 text-sm text-black rounded hover:bg-gray-100 ${categoryId === "" ? "bg-gray-50" : ""}`}
+                      onClick={() => {
+                        setCategoryId("");
+                        setIsCatOpen(false);
+                      }}
+                    >
+                      All categories
+                    </button>
+                    {catData?.results?.map((c) => {
+                      const id = String(c.id);
+                      const active = id === categoryId;
+                      return (
+                        <button
+                          key={id}
+                          className={`w-full text-left px-3 py-2 text-sm text-black rounded hover:bg-gray-100 ${active ? "bg-gray-50" : ""}`}
+                          onClick={() => {
+                            setCategoryId(id);
+                            setIsCatOpen(false);
+                          }}
+                        >
+                          {c.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Tags (minimal dropdown + chips) */}
             <div className="block">
@@ -207,7 +251,7 @@ export default function Home() {
                 setQ("");
                 setCategoryId("");
                 setSelectedTags([]);
-                setPageSize(12);
+                setPageSize(9);
               }}
             >
               Clear all
@@ -219,7 +263,7 @@ export default function Home() {
                 value={pageSize}
                 onChange={(e) => setPageSize(Number(e.target.value))}
               >
-                <option value={6}>6</option>
+                <option value={6}>9</option>
                 <option value={12}>12</option>
                 <option value={24}>24</option>
                 <option value={48}>48</option>
