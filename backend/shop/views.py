@@ -15,9 +15,15 @@ def tags_api(request):
 
 @require_GET
 def products_api(request):
-    #params for pagination
-    page = int(request.GET.get("page", 1))
-    page_size = int(request.GET.get("page_size", 10))
+    def to_int(val, default):
+        try:
+            return int(val)
+        except (TypeError, ValueError):
+            return default
+
+    page = max(1, to_int(request.GET.get("page", 1), 1))
+    page_size = to_int(request.GET.get("page_size", 10), 10)
+    page_size = max(1, min(page_size, 100))
 
     qs = (
         Product.objects
@@ -25,15 +31,16 @@ def products_api(request):
         .prefetch_related("tags")
         .order_by("id")
     )
+    #case insensitive description search
+    q = (request.GET.get("q") or "").strip()
+    if q:
+        if len(q) > 200:
+            q = q[:200]
+        qs = qs.filter(description__icontains=q)
 
-    #pagination
+    # paginate data after filters
     paginator = Paginator(qs, page_size)
     page_obj = paginator.get_page(page)
-    
-    #case insensitive description search
-    q = request.GET.get("q")
-    if q:
-        qs = qs.filter(description__icontains=q)
 
     results = []
     for p in page_obj.object_list:
@@ -48,11 +55,12 @@ def products_api(request):
             "tags": [{"id": t.id, "name": t.name} for t in p.tags.all()],
         })
 
-    #todo clean up, use a pagination field instead?
     return JsonResponse({
         "results": results,
-        "count": paginator.count,
-        "page": page_obj.number,
-        "num_pages": paginator.num_pages,
-        "page_size": page_size,
+        "pagination": {
+            "count": paginator.count,
+            "page": page_obj.number,
+            "num_pages": paginator.num_pages,
+            "page_size": page_size,
+        },
     })
