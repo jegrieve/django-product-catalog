@@ -1,4 +1,14 @@
+"use client";
+
+import { useCategories } from "@/hooks";
+import { useState } from "react";
+
 export default function Home() {
+  const [categoryId, setCategoryId] = useState<string>("");
+
+  // fetch categories via our hook
+  const { data, isLoading, error } = useCategories(true); // enabled=true
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Top bar */}
@@ -10,10 +20,10 @@ export default function Home() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-6 space-y-6">
-        {/* Filters (static for now) */}
+        {/* Filters */}
         <section className="bg-white border rounded-2xl shadow-sm p-4 sm:p-5">
           <div className="grid gap-3 md:grid-cols-3">
-            {/* Search */}
+            {/* Search (static for now) */}
             <label className="block">
               <span className="block text-xs font-medium text-slate-600 mb-1">Search</span>
               <input
@@ -23,24 +33,31 @@ export default function Home() {
               />
             </label>
 
-            {/* Category (static options) */}
+            {/* Category (now driven by hook) */}
             <label className="block">
               <span className="block text-xs font-medium text-slate-600 mb-1">Category</span>
               <select
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
-                disabled
-                defaultValue=""
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                disabled={isLoading || !!error}
               >
                 <option value="">All categories</option>
-                <option>Electronics</option>
-                <option>Home &amp; Kitchen</option>
-                <option>Sports &amp; Outdoors</option>
-                <option>Books</option>
-                <option>Clothing</option>
+                {data?.results?.map((c) => (
+                  <option key={c.id} value={String(c.id)}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
+              {isLoading && (
+                <div className="mt-1 text-xs text-slate-500">Loading categories…</div>
+              )}
+              {error && (
+                <div className="mt-1 text-xs text-red-600">Failed to load categories.</div>
+              )}
             </label>
 
-            {/* Tags (placeholder) */}
+            {/* Tags (placeholder for now) */}
             <div className="block">
               <span className="block text-xs font-medium text-slate-600 mb-1">Tags</span>
               <button
@@ -65,7 +82,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Footer controls (placeholder) */}
+          {/* Footer controls (still placeholder) */}
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button className="text-sm rounded-lg border px-3 py-1.5 hover:bg-slate-100" disabled>
               Clear all
@@ -102,7 +119,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Skeleton grid (static) */}
+        {/* Skeleton grid (still static) */}
         <section>
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
