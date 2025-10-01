@@ -25,8 +25,12 @@ def products_api(request):
     #pagination
     paginator = Paginator(qs, page_size)
     page_obj = paginator.get_page(page)
+    
+    #case insensitive description search
+    q = request.GET.get("q")
+    if q:
+        qs = qs.filter(description__icontains=q)
 
-    #todo search filtering
     results = []
     for p in page_obj.object_list:
         results.append({
