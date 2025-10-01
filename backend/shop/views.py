@@ -15,14 +15,16 @@ def tags_api(request):
 
 @require_GET
 def products_api(request):
-    def to_int(val, default):
-        try:
-            return int(val)
-        except (TypeError, ValueError):
-            return default
+    try:
+        page = int(request.GET.get("page", 1))
+    except (TypeError, ValueError):
+        page = 1
+    page = max(1, page)
 
-    page = max(1, to_int(request.GET.get("page", 1), 1))
-    page_size = to_int(request.GET.get("page_size", 10), 10)
+    try:
+        page_size = int(request.GET.get("page_size", 10))
+    except (TypeError, ValueError):
+        page_size = 10
     page_size = max(1, min(page_size, 100))
 
     qs = (
