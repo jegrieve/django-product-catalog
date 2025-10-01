@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from shop.models import Category, Tag, Product
 
-#from cursor a simple command to seed db for testing
+# Simple command generated with Cursor to seed database for testing
 class Command(BaseCommand):
     help = "Seed demo Categories, Tags, and Products."
 
