@@ -65,6 +65,23 @@ Creates 5 categories, 8 tags, and specified number of products.
 
 ## API Endpoints
 
+### Categories
 - `GET /api/categories/` - List all categories
-- `GET /api/tags/` - List all tags  
-- `GET /api/products/` - List all products
+
+### Tags
+- `GET /api/tags/` - List all tags
+
+### Products
+- `GET /api/products/` - List products with search and filtering
+
+**Query Parameters:**
+- `q` - Search term (case insensitive search in product descriptions)
+- `category` - Category ID to filter by
+- `tags` - Comma-separated tag IDs (e.g., `tags=1,5,9`)
+- `page` - Page number (default: 1)
+- `page_size` - Items per page (default: 10, max: 50)
+
+## Extra Documentation
+
+- **[Development Log](devlog.md)** - Detailed development process and technical decisions
+- **[Prompts](prompts.md)** - List of prompts used during development
