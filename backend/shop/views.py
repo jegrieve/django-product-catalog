@@ -1,15 +1,19 @@
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 from .models import Category, Tag, Product
 
+@require_GET
 def categories_api(request):
     data = [{"id": c.id, "name": c.name} for c in Category.objects.order_by("name")]
     return JsonResponse({"results": data})
 
+@require_GET
 def tags_api(request):
     data = [{"id": t.id, "name": t.name} for t in Tag.objects.order_by("name")]
     return JsonResponse({"results": data})
 
+@require_GET
 def products_api(request):
     #params for pagination
     page = int(request.GET.get("page", 1))
