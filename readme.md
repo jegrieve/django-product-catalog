@@ -35,7 +35,7 @@ pip install django django-cors-headers
 python manage.py makemigrations
 python manage.py migrate
 
-# Seed database with sample data using command or with admin gui
+# Seed database with sample data using command or with the admin GUI
 python manage.py seed_shop --fresh --count 60
 
 # Start server
