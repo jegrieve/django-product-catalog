@@ -2,6 +2,10 @@
 
 A full-stack product catalog application built with Django (backend) and Next.js (frontend).
 
+
+https://github.com/user-attachments/assets/044e892c-436d-4389-a262-2c2e6c5440c8
+
+
 ## Prerequisites
 
 - **Python 3.8+** - [Download Python](https://www.python.org/downloads/)
