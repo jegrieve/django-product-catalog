@@ -25,7 +25,7 @@ At a high level, I designed three models:
 - **Fields:** name, description, price, category (FK to Category), tags (M2M to Tag)
 - **Rationale:** This structure supports the assignment requirements: search by description and filter by category and tags, including combined filters.
 
-I used https://dbdiagram.io/ to visualize the schema, created the schema code (generated with Cursor) based on my model definitions, then implemented the Django models.
+I used https://dbdiagram.io/ to visualize the schema, and created the dbdigram schema code (generated with Cursor) based on my model definitions. I then implemented the Django models based on the the requirements above.
 <img width="1980" height="1048" alt="CleanShot 2025-10-01 at 11 59 59@2x" src="https://github.com/user-attachments/assets/8b3b8ad4-5221-4e90-98ec-3168cc633c1c" />
 
 ## Admin & Seeding
